@@ -273,4 +273,78 @@ public class LibraryBookInventory {
 
         return false;
     }
+    
+    // Adds a book to the inventory without user input
+    public static boolean addBookToInventory(Book book) {
+
+    if (book == null) {
+        return false;
+    }
+
+    // Check for duplicate ID
+    if (isBookIdExists(book.getId())) {
+        return false;
+    }
+
+    // Check for duplicate ISBN
+    if (isIsbnExists(book.getIsbn())) {
+        return false;
+    }
+
+    books.add(book);
+    return true;
+}
+
+// Finds a book using its ID
+public static Book findBookById(int id) {
+
+    for (Book book : books) {
+
+        if (book.getId() == id) {
+            return book;
+        }
+    }
+
+    return null;
+}
+
+// Updates an existing book
+public static boolean updateBookDetails(int id, String title,
+        String author, String isbn, int year) {
+
+    Book book = findBookById(id);
+
+    // Book not found
+    if (book == null) {
+        return false;
+    }
+
+    // Check duplicate ISBN
+    if (isIsbnUsedByAnotherBook(isbn, id)) {
+        return false;
+    }
+
+    book.setTitle(title);
+    book.setAuthor(author);
+    book.setIsbn(isbn);
+    book.setPublicationYear(year);
+
+    return true;
+}
+
+// Deletes a book using its ID
+public static boolean deleteBookById(int id) {
+
+    for (int i = 0; i < books.size(); i++) {
+
+        if (books.get(i).getId() == id) {
+      // if (books.get(i).getId() != id) {
+
+            books.remove(i);
+            return true;
+        }
+    }
+
+    return false;
+}
 }
