@@ -3,55 +3,70 @@ import java.util.Scanner;
 
 public class LibraryBookInventory {
 
-    // ArrayList is used to store book objects in memory
+    // Stores all books in memory.
+    // ArrayList is retained to keep the existing Week 3 tests compatible.
     static ArrayList<Book> books = new ArrayList<Book>();
 
-    // Scanner is used to take input from the user
+    // Scanner is used to read input from the user.
     static Scanner scanner = new Scanner(System.in);
+
+    // Constants avoid repeated hard-coded validation values.
+    private static final int MIN_PUBLICATION_YEAR = 1000;
+    private static final int MAX_PUBLICATION_YEAR = 2026;
 
     public static void main(String[] args) {
 
         int choice;
 
-        // Menu will continue until the user selects Exit
+        // Menu continues until the user selects Exit.
         do {
             displayMenu();
 
-            // Read menu choice safely
             choice = readInt("Enter your choice: ");
 
-            switch (choice) {
-
-                case 1:
-                    addBook();
-                    break;
-
-                case 2:
-                    listBooks();
-                    break;
-
-                case 3:
-                    updateBook();
-                    break;
-
-                case 4:
-                    deleteBook();
-                    break;
-
-                case 5:
-                    System.out.println("\nThank you for using Library Book Inventory System!");
-                    break;
-
-                default:
-                    System.out.println("\nInvalid choice! Please enter a number from 1 to 5.");
-            }
+            handleMenuChoice(choice);
 
         } while (choice != 5);
 
         scanner.close();
     }
 
-    // Displays the main menu
+    // Handles the user's menu selection.
+    // This keeps the main method simple and improves readability.
+    public static void handleMenuChoice(int choice) {
+
+        switch (choice) {
+
+            case 1:
+                addBook();
+                break;
+
+            case 2:
+                listBooks();
+                break;
+
+            case 3:
+                updateBook();
+                break;
+
+            case 4:
+                deleteBook();
+                break;
+
+            case 5:
+                System.out.println(
+                        "\nThank you for using Library Book Inventory System!"
+                );
+                break;
+
+            default:
+                System.out.println(
+                        "\nInvalid choice! Please enter a number from 1 to 5."
+                );
+        }
+    }
+
+    // Displays the main menu.
     public static void displayMenu() {
 
         System.out.println("\n====================================");
@@ -65,123 +80,115 @@ public class LibraryBookInventory {
         System.out.println("====================================");
     }
 
-    // CREATE - Adds a new book to the inventory
+    // CREATE - Adds a new book to the inventory.
     public static void addBook() {
 
         System.out.println("\n----- ADD BOOK -----");
 
-        // Read and validate Book ID
         int id = readInt("Enter Book ID: ");
 
-        // Check whether the Book ID already exists
+        // Validation is performed before creating the Book object.
         if (isBookIdExists(id)) {
-            System.out.println("Book ID already exists! Please use a different ID.");
+            System.out.println(
+                    "Book ID already exists! Please use a different ID."
+            );
             return;
         }
 
-        // Read book details
         String title = readNonEmptyString("Enter Title: ");
         String author = readNonEmptyString("Enter Author: ");
         String isbn = readNonEmptyString("Enter ISBN: ");
 
-        // Check whether ISBN already exists
         if (isIsbnExists(isbn)) {
-            System.out.println("ISBN already exists! Please enter a different ISBN.");
+            System.out.println(
+                    "ISBN already exists! Please enter a different ISBN."
+            );
             return;
         }
 
         int year = readPublicationYear();
 
-        // Create a new Book object
         Book book = new Book(id, title, author, isbn, year);
 
-        // Add the book to ArrayList
-        books.add(book);
-
-        System.out.println("Book added successfully!");
+        // Reuse the testable CRUD method instead of directly modifying
+        // the collection. This follows the DRY principle.
+        if (addBookToInventory(book)) {
+            System.out.println("Book added successfully!");
+        }
     }
 
-    // READ - Displays all books
+    // READ - Displays all books.
     public static void listBooks() {
 
         System.out.println("\n----- ALL BOOKS -----");
 
-        // Check whether the inventory is empty
         if (books.isEmpty()) {
             System.out.println("No books available in the inventory.");
             return;
         }
 
-        // Display each book
         for (Book book : books) {
             System.out.println(book);
         }
     }
 
-    // UPDATE - Updates the details of an existing book
+    // UPDATE - Updates the details of an existing book.
     public static void updateBook() {
 
         System.out.println("\n----- UPDATE BOOK -----");
 
         int id = readInt("Enter Book ID to update: ");
 
-        // Search for the book using its ID
-        for (Book book : books) {
+        // Reuse findBookById() instead of writing another search loop.
+        Book book = findBookById(id);
 
-            if (book.getId() == id) {
-
-                String newTitle = readNonEmptyString("Enter New Title: ");
-                String newAuthor = readNonEmptyString("Enter New Author: ");
-                String newIsbn = readNonEmptyString("Enter New ISBN: ");
-
-                // Check if the new ISBN belongs to another book
-                if (isIsbnUsedByAnotherBook(newIsbn, id)) {
-                    System.out.println("ISBN already belongs to another book!");
-                    return;
-                }
-
-                int newYear = readPublicationYear();
-
-                // Update book information
-                book.setTitle(newTitle);
-                book.setAuthor(newAuthor);
-                book.setIsbn(newIsbn);
-                book.setPublicationYear(newYear);
-
-                System.out.println("Book updated successfully!");
-                return;
-            }
+        if (book == null) {
+            System.out.println("Book with ID " + id + " not found.");
+            return;
         }
 
-        // If no book was found
-        System.out.println("Book with ID " + id + " not found.");
+        String newTitle = readNonEmptyString("Enter New Title: ");
+        String newAuthor = readNonEmptyString("Enter New Author: ");
+        String newIsbn = readNonEmptyString("Enter New ISBN: ");
+
+        // Prevent ISBN duplication.
+        if (isIsbnUsedByAnotherBook(newIsbn, id)) {
+            System.out.println(
+                    "ISBN already belongs to another book!"
+            );
+            return;
+        }
+
+        int newYear = readPublicationYear();
+
+        // Reuse the testable update method.
+        if (updateBookDetails(
+                id,
+                newTitle,
+                newAuthor,
+                newIsbn,
+                newYear)) {
+
+            System.out.println("Book updated successfully!");
+        }
     }
 
-    // DELETE - Deletes a book from the inventory
+    // DELETE - Deletes a book from the inventory.
     public static void deleteBook() {
 
         System.out.println("\n----- DELETE BOOK -----");
 
         int id = readInt("Enter Book ID to delete: ");
 
-        // Search for the book
-        for (int i = 0; i < books.size(); i++) {
-
-            if (books.get(i).getId() == id) {
-
-                // Remove the book from ArrayList
-                books.remove(i);
-
-                System.out.println("Book deleted successfully!");
-                return;
-            }
+        // Reuse deleteBookById() instead of duplicating the search loop.
+        if (deleteBookById(id)) {
+            System.out.println("Book deleted successfully!");
+        } else {
+            System.out.println("Book with ID " + id + " not found.");
         }
-
-        // If no book was found
-        System.out.println("Book with ID " + id + " not found.");
     }
 
-    // Reads an integer safely and handles invalid input
+    // Reads an integer safely and handles invalid input.
     public static int readInt(String message) {
 
         while (true) {
@@ -195,12 +202,14 @@ public class LibraryBookInventory {
 
             } catch (NumberFormatException e) {
 
-                System.out.println("Invalid input! Please enter a valid number.");
+                System.out.println(
+                        "Invalid input! Please enter a valid number."
+                );
             }
         }
     }
 
-    // Reads a String and makes sure it is not empty
+    // Reads a String and makes sure it is not empty.
     public static String readNonEmptyString(String message) {
 
         while (true) {
@@ -213,40 +222,41 @@ public class LibraryBookInventory {
                 return input;
             }
 
-            System.out.println("Input cannot be empty! Please try again.");
+            System.out.println(
+                    "Input cannot be empty! Please try again."
+            );
         }
     }
 
-    // Reads and validates the publication year
+    // Reads and validates the publication year.
+    // Constants are used instead of hard-coded values.
     public static int readPublicationYear() {
 
         while (true) {
 
             int year = readInt("Enter Publication Year: ");
 
-            // Basic validation for publication year
-            if (year >= 1000 && year <= 2026) {
+            if (year >= MIN_PUBLICATION_YEAR
+                    && year <= MAX_PUBLICATION_YEAR) {
+
                 return year;
             }
 
-            System.out.println("Invalid publication year! Enter a year between 1000 and 2026.");
+            System.out.println(
+                    "Invalid publication year! Enter a year between "
+                    + MIN_PUBLICATION_YEAR + " and "
+                    + MAX_PUBLICATION_YEAR + "."
+            );
         }
     }
 
-    // Checks whether a Book ID already exists
+    // Checks whether a Book ID already exists.
     public static boolean isBookIdExists(int id) {
 
-        for (Book book : books) {
-
-            if (book.getId() == id) {
-                return true;
-            }
-        }
-
-        return false;
+        return findBookById(id) != null;
     }
 
-    // Checks whether an ISBN already exists
+    // Checks whether an ISBN already exists.
     public static boolean isIsbnExists(String isbn) {
 
         for (Book book : books) {
@@ -259,13 +269,14 @@ public class LibraryBookInventory {
         return false;
     }
 
-    // Checks whether an ISBN belongs to another book
-    public static boolean isIsbnUsedByAnotherBook(String isbn, int currentBookId) {
+    // Checks whether an ISBN belongs to another book.
+    public static boolean isIsbnUsedByAnotherBook(
+            String isbn, int currentBookId) {
 
         for (Book book : books) {
 
-            if (book.getId() != currentBookId &&
-                book.getIsbn().equalsIgnoreCase(isbn)) {
+            if (book.getId() != currentBookId
+                    && book.getIsbn().equalsIgnoreCase(isbn)) {
 
                 return true;
             }
@@ -273,78 +284,79 @@ public class LibraryBookInventory {
 
         return false;
     }
-    
-    // Adds a book to the inventory without user input
+
+    // Adds a book without requiring user input.
+    // This method is reusable by both the application and unit tests.
     public static boolean addBookToInventory(Book book) {
 
-    if (book == null) {
-        return false;
-    }
-
-    // Check for duplicate ID
-    if (isBookIdExists(book.getId())) {
-        return false;
-    }
-
-    // Check for duplicate ISBN
-    if (isIsbnExists(book.getIsbn())) {
-        return false;
-    }
-
-    books.add(book);
-    return true;
-}
-
-// Finds a book using its ID
-public static Book findBookById(int id) {
-
-    for (Book book : books) {
-
-        if (book.getId() == id) {
-            return book;
+        if (book == null) {
+            return false;
         }
-    }
 
-    return null;
-}
-
-// Updates an existing book
-public static boolean updateBookDetails(int id, String title,
-        String author, String isbn, int year) {
-
-    Book book = findBookById(id);
-
-    // Book not found
-    if (book == null) {
-        return false;
-    }
-
-    // Check duplicate ISBN
-    if (isIsbnUsedByAnotherBook(isbn, id)) {
-        return false;
-    }
-
-    book.setTitle(title);
-    book.setAuthor(author);
-    book.setIsbn(isbn);
-    book.setPublicationYear(year);
-
-    return true;
-}
-
-// Deletes a book using its ID
-public static boolean deleteBookById(int id) {
-
-    for (int i = 0; i < books.size(); i++) {
-
-        if (books.get(i).getId() == id) {
-      // if (books.get(i).getId() != id) {
-
-            books.remove(i);
-            return true;
+        if (isBookIdExists(book.getId())) {
+            return false;
         }
+
+        if (isIsbnExists(book.getIsbn())) {
+            return false;
+        }
+
+        books.add(book);
+        return true;
     }
 
-    return false;
-}
+    // Finds a book using its ID.
+    // This method is reused by multiple operations to avoid duplicate code.
+    public static Book findBookById(int id) {
+
+        for (Book book : books) {
+
+            if (book.getId() == id) {
+                return book;
+            }
+        }
+
+        return null;
+    }
+
+    // Updates an existing book without user input.
+    // Kept separate from the UI method for better modularity and testing.
+    public static boolean updateBookDetails(
+            int id,
+            String title,
+            String author,
+            String isbn,
+            int year) {
+
+        Book book = findBookById(id);
+
+        if (book == null) {
+            return false;
+        }
+
+        if (isIsbnUsedByAnotherBook(isbn, id)) {
+            return false;
+        }
+
+        book.setTitle(title);
+        book.setAuthor(author);
+        book.setIsbn(isbn);
+        book.setPublicationYear(year);
+
+        return true;
+    }
+
+    // Deletes a book using its ID.
+    // The same method is used by the UI and unit tests.
+    public static boolean deleteBookById(int id) {
+
+        Book book = findBookById(id);
+
+        if (book == null) {
+            return false;
+        }
+
+        books.remove(book);
+        return true;
+    }
 }
