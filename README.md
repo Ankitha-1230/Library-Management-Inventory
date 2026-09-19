@@ -1,118 +1,181 @@
-# Library Book Inventory System
+# Library Book Inventory System - Week 5
 
-## Project Description
+## 1. Project Overview
 
-The Library Book Inventory System is a Java-based command-line application developed to manage books in a library inventory.
+The Library Book Inventory System is a Java-based command-line application developed to manage basic library book records.
 
-The application allows users to perform basic CRUD operations:
+The project was developed and improved over multiple weeks as part of the Java internship tasks. In Week 5, the application was integrated, tested, packaged as a JAR file, and prepared for simple deployment using Windows batch scripts.
 
-- Add a new book
-- View all books
-- Update book details
-- Delete a book
+The application allows the user to add, view, update, and delete book records. It also includes input validation and checks for duplicate Book IDs and ISBNs.
 
-Book information includes:
+The current version stores book information temporarily using an ArrayList. No database is used.
 
-- Book ID
-- Title
-- Author
-- ISBN
-- Publication Year
+## 2. Features
 
-The application stores book data in memory using Java ArrayList.
+* Add a new book
+* List all books
+* Update book details
+* Delete a book
+* Validate Book ID
+* Prevent duplicate Book IDs
+* Prevent duplicate ISBNs
+* Validate publication year
+* Handle invalid numeric input
+* JUnit unit testing
+* Executable JAR packaging
+* Simple deployment scripts
 
-## Technologies Used
+## 3. Technologies Used
 
-- Java
-- Java ArrayList
-- Java Scanner
-- JUnit 4.13.2
-- Command Line Interface
-- VS Code
+* Java 8
+* ArrayList
+* JUnit 4.13.2
+* Hamcrest 1.3
+* VS Code
+* Windows PowerShell / Command Prompt
 
-## Features
-
-### 1. Add Book
-
-Allows the user to add a new book with its ID, title, author, ISBN, and publication year.
-
-### 2. List All Books
-
-Displays all books currently stored in the inventory.
-
-### 3. Update Book
-
-Allows the user to update the details of an existing book using its Book ID.
-
-### 4. Delete Book
-
-Allows the user to delete a book using its Book ID.
-
-### 5. Input Validation
-
-The application validates user input and prevents invalid values.
-
-### 6. Exception Handling
-
-NumberFormatException is handled when the user enters invalid numeric input.
-
-### 7. Duplicate Checking
-
-The application checks for duplicate Book IDs and ISBN values.
-
-## Week 3 - Unit Testing and Debugging
-
-JUnit 4.13.2 was used to test the core functionality of the inventory system.
-
-The test suite contains 11 test cases covering:
-
-- Create operation
-- Read operation
-- Update operation
-- Delete operation
-- Book not found scenarios
-- Duplicate Book ID
-- Duplicate ISBN
-- Duplicate ISBN during update
-- Case-insensitive ISBN checking
-
-An intentional bug was introduced in the delete operation by changing the ID comparison condition. The JUnit test detected the error, and the condition was corrected.
-
-Final Week 3 test result:
-
-- Total tests: 11
-- Passed: 11
-- Failed: 0
-
-## Week 4 - Code Refactoring and Optimization
-
-In Week 4, the Library Book Inventory Management System was refactored to improve code readability, maintainability, and structure while preserving the existing functionality.
-
-### Refactoring Improvements
-
-- Applied the DRY (Don't Repeat Yourself) principle.
-- Reused `findBookById()` instead of repeating book search logic.
-- Reused `deleteBookById()` in the delete operation.
-- Added constants for publication year validation.
-- Added `handleMenuChoice()` to keep the `main()` method simple and modular.
-- Separated user-input handling from core inventory operations.
-- Removed temporary debugging code from Week 3.
-- Added comments explaining important refactoring decisions.
-
-### Testing After Refactoring
-
-The existing JUnit test suite was executed after the refactoring to verify that the changes did not break the application.
-
-Final Week 4 test result:
-
-- JUnit version: 4.13.2
-- Total tests: 11
-- Passed: 11
-- Failed: 0
-
-## Run the Application
-
-### Compile
+## 4. Project Structure
 
 ```text
-javac -d bin src\Book.java src\LibraryBookInventory.java
+Library_Management_Inventory_Week5
+│
+├── src
+│   ├── Book.java
+│   └── LibraryBookInventory.java
+│
+├── test
+│   └── LibraryBookInventoryTest.java
+│
+├── lib
+│   ├── junit-4.13.2.jar
+│   └── hamcrest-core-1.3.jar
+│
+├── deployment
+│   ├── build.bat
+│   └── run.bat
+│
+├── build
+│
+├── dist
+│   └── LibraryBookInventory.jar
+│
+└── README.md
+```
+
+## 5. How to Compile
+
+Open PowerShell in the Week 5 project folder and run:
+
+```text
+javac -d build src\Book.java src\LibraryBookInventory.java
+```
+
+This compiles the Java source files and stores the generated class files inside the `build` folder.
+
+## 6. How to Run
+
+After compiling the source files, run the application using:
+
+```text
+java -cp build LibraryBookInventory
+```
+
+The application displays a menu with options to add, list, update, delete, or exit.
+
+## 7. How to Create the JAR
+
+The executable JAR can be created using:
+
+```text
+jar cfe dist\LibraryBookInventory.jar LibraryBookInventory -C build .
+```
+
+The generated JAR file will be stored in:
+
+```text
+dist\LibraryBookInventory.jar
+```
+
+The JAR can then be executed using:
+
+```text
+java -jar dist\LibraryBookInventory.jar
+```
+
+## 8. Deployment Scripts
+
+Two simple Windows batch scripts are included in the `deployment` folder.
+
+### build.bat
+
+The `build.bat` script compiles the Java source files and creates the executable JAR file.
+
+Run it using:
+
+```text
+deployment\build.bat
+```
+
+### run.bat
+
+The `run.bat` script checks whether the JAR file exists and then starts the application using `java -jar`.
+
+Run it using:
+
+```text
+deployment\run.bat
+```
+
+If the JAR file does not exist, the script asks the user to run `build.bat` first.
+
+These scripts are provided to simplify the build and execution process. They are part of the Week 5 deployment preparation and do not represent production deployment.
+
+## 9. Testing
+
+JUnit 4.13.2 is used for unit testing.
+
+The project contains 11 existing test cases covering important operations such as:
+
+* Adding books
+* Finding books
+* Updating books
+* Deleting books
+* Book not found cases
+* Duplicate Book ID
+* Duplicate ISBN
+* Duplicate ISBN during update
+* Case-insensitive ISBN validation
+
+The integrated Week 5 project was tested using JUnit.
+
+All 11 tests passed successfully.
+
+Expected result:
+
+```text
+OK (11 tests)
+```
+
+The required JUnit libraries are stored in the `lib` folder.
+
+## 10. Future Enhancements
+
+The current application is a basic command-line inventory system. Possible future improvements include:
+
+* Database integration
+* Web-based user interface
+* Search and filtering features
+* User authentication
+* Better reporting features
+* Maven or Gradle build management
+* Automated testing and deployment
+
+These features are possible future enhancements and are not included in the current Week 5 implementation.
+
+## Conclusion
+
+Week 5 focused on integrating the Library Book Inventory System, testing the integrated application, packaging it as an executable JAR, and preparing simple deployment scripts.
+
+The project now contains the Java source files, JUnit tests, required libraries, deployment scripts, executable JAR, and project README.
+
+The application is intended as a student Java project and the deployment scripts are used to demonstrate the basic build and execution process.
